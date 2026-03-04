@@ -182,7 +182,6 @@
         }
 
         try {
-            // Get record from database
             $stmt = $pdo->prepare("SELECT * FROM registrations WHERE id = ?");
             $stmt->execute([$id]);
             $record = $stmt->fetch();
@@ -196,7 +195,6 @@
             }
 
             if ($isUpdate) {
-                // Update the record in database
                 $updateStmt = $pdo->prepare("UPDATE registrations SET fname = ?, lname = ?, address = ?, country = ?, gender = ?, skills = ?, username = ?, department = ? WHERE id = ?");
                 $skillsJson = json_encode($_POST['skills'] ?? []);
 
@@ -221,7 +219,6 @@
                     echo "<a href='list_data.php' class='back-btn'>← Back to All Registrations</a>";
                     echo "</div>";
 
-                    // Refresh record data
                     $stmt->execute([$id]);
                     $record = $stmt->fetch();
                 } else {

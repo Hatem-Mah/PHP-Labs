@@ -113,7 +113,6 @@
         }
         
         try {
-            // Get record from database
             $stmt = $pdo->prepare("SELECT * FROM registrations WHERE id = ?");
             $stmt->execute([$id]);
             $record = $stmt->fetch();
@@ -126,9 +125,7 @@
                 exit;
             }
             
-            // If delete is confirmed, perform the deletion
             if ($confirm === 'yes') {
-                // Delete the record from database
                 $deleteStmt = $pdo->prepare("DELETE FROM registrations WHERE id = ?");
                 
                 if ($deleteStmt->execute([$id])) {
@@ -152,7 +149,6 @@
                     echo "</div>";
                 }
             } else {
-            // Show confirmation form
             echo "<div class='warning'>";
             echo "<h3>⚠ Confirm Deletion</h3>";
             echo "<p>Are you sure you want to <strong>permanently delete</strong> this registration? This action cannot be undone.</p>";
@@ -188,7 +184,6 @@
             
             echo "</div>";
             
-            // Confirmation form
             echo "<div class='nav-links'>";
             echo "<form method='POST' style='display: inline;'>";
             echo "<input type='hidden' name='confirm' value='yes'>";

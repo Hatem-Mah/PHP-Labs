@@ -90,7 +90,7 @@
         </div>
 
         <?php
-        // Include database connection
+        
         require_once 'config/database.php';
 
         $id = $_GET['id'] ?? '';
@@ -101,7 +101,7 @@
         }
 
         try {
-            // Get record from database
+            
             $stmt = $pdo->prepare("SELECT * FROM registrations WHERE id = ?");
             $stmt->execute([$id]);
             $record = $stmt->fetch();
@@ -111,7 +111,6 @@
                 exit;
             }
 
-            // Display the record
             echo "<div class='detail-card'>";
             echo "<h3>Registration Information</h3>";
 

@@ -8,10 +8,8 @@
 <body>
 
     <?php
-    // Include database connection
     require_once 'config/database.php';
 
-    // Get data from POST
     $fname = $_POST['fname'];
     $lname = $_POST['lname'];
     $address = $_POST['address'];
@@ -24,14 +22,10 @@
     $code = $_POST['code'];
 
     try {
-        // Prepare SQL statement
         $stmt = $pdo->prepare("INSERT INTO registrations (fname, lname, address, country, gender, skills, username, password, department, code) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-
-        // Convert skills array to JSON
+        
         $skillsJson = json_encode($skills);
-
-        // Execute the statement
-        $result = $stmt->execute([$fname, $lname, $address, $country, $gender, $skillsJson, $username, $password, $department, $code]);
+        
 
         if ($result) {
             $success = true;
@@ -44,7 +38,6 @@
         $success = false;
         $error = "Database error: " . $e->getMessage();
     }
-    // Title based on gender
     if ($gender == "Female") {
         $title = "Ms";
     } else {
