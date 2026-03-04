@@ -99,76 +99,59 @@
         <h2>Delete Registration</h2>
 
         <?php
+        require_once 'config/database.php';
+        
         $id = $_GET['id'] ?? '';
         $confirm = $_POST['confirm'] ?? '';
         
-        if (empty($id)) {
-            echo "<div class='error'>No ID provided.</div>";
+        if (empty($id) || !is_numeric($id)) {
+            echo "<div class='error'>Invalid ID provided.</div>";
             echo "<div class='nav-links'>";
             echo "<a href='list_data.php' class='back-btn'>← Back to All Registrations</a>";
             echo "</div>";
             exit;
         }
         
-        $file = 'data.json';
-        
-        if (!file_exists($file)) {
-            echo "<div class='error'>No data file found.</div>";
-            echo "<div class='nav-links'>";
-            echo "<a href='list_data.php' class='back-btn'>← Back to All Registrations</a>";
-            echo "</div>";
-            exit;
-        }
-        
-        $jsonData = file_get_contents($file);
-        $data = json_decode($jsonData, true);
-        $record = null;
-        $recordIndex = -1;
-        
-        // Find the record with matching ID
-        foreach ($data as $index => $item) {
-            if ($item['id'] === $id) {
-                $record = $item;
-                $recordIndex = $index;
-                break;
-            }
-        }
-        
-        if (!$record) {
-            echo "<div class='error'>Record not found.</div>";
-            echo "<div class='nav-links'>";
-            echo "<a href='list_data.php' class='back-btn'>← Back to All Registrations</a>";
-            echo "</div>";
-            exit;
-        }
-        
-        // If delete is confirmed, perform the deletion
-        if ($confirm === 'yes') {
-            // Remove the record from array
-            array_splice($data, $recordIndex, 1);
+        try {
+            // Get record from database
+            $stmt = $pdo->prepare("SELECT * FROM registrations WHERE id = ?");
+            $stmt->execute([$id]);
+            $record = $stmt->fetch();
             
-            // Save back to file
-            if (file_put_contents($file, json_encode($data, JSON_PRETTY_PRINT))) {
-                echo "<div class='success'>";
-                echo "<h3>✓ Record Deleted Successfully</h3>";
-                echo "<p>The registration for <strong>" . htmlspecialchars($record['fname'] . ' ' . $record['lname']) . "</strong> has been permanently deleted.</p>";
-                echo "</div>";
-                
-                echo "<div class='nav-links'>";
-                echo "<a href='list_data.php' class='back-btn'>← Back to All Registrations</a>";
-                echo "<a href='registration.html' class='cancel-btn'>New Registration</a>";
-                echo "</div>";
-            } else {
-                echo "<div class='error'>";
-                echo "<h3>✗ Error</h3>";
-                echo "<p>Failed to delete the record. Please try again.</p>";
-                echo "</div>";
-                
+            if (!$record) {
+                echo "<div class='error'>Record not found.</div>";
                 echo "<div class='nav-links'>";
                 echo "<a href='list_data.php' class='back-btn'>← Back to All Registrations</a>";
                 echo "</div>";
+                exit;
             }
-        } else {
+            
+            // If delete is confirmed, perform the deletion
+            if ($confirm === 'yes') {
+                // Delete the record from database
+                $deleteStmt = $pdo->prepare("DELETE FROM registrations WHERE id = ?");
+                
+                if ($deleteStmt->execute([$id])) {
+                    echo "<div class='success'>";
+                    echo "<h3>✓ Record Deleted Successfully</h3>";
+                    echo "<p>The registration for <strong>" . htmlspecialchars($record['fname'] . ' ' . $record['lname']) . "</strong> has been permanently deleted from the database.</p>";
+                    echo "</div>";
+                    
+                    echo "<div class='nav-links'>";
+                    echo "<a href='list_data.php' class='back-btn'>← Back to All Registrations</a>";
+                    echo "<a href='registration.html' class='cancel-btn'>New Registration</a>";
+                    echo "</div>";
+                } else {
+                    echo "<div class='error'>";
+                    echo "<h3>✗ Error</h3>";
+                    echo "<p>Failed to delete the record from database. Please try again.</p>";
+                    echo "</div>";
+                    
+                    echo "<div class='nav-links'>";
+                    echo "<a href='list_data.php' class='back-btn'>← Back to All Registrations</a>";
+                    echo "</div>";
+                }
+            } else {
             // Show confirmation form
             echo "<div class='warning'>";
             echo "<h3>⚠ Confirm Deletion</h3>";
@@ -213,6 +196,13 @@
             echo "</form>";
             echo "<a href='list_data.php' class='cancel-btn'>Cancel</a>";
             echo "<a href='view_data.php?id=" . urlencode($record['id']) . "' class='back-btn'>View Full Record</a>";
+            echo "</div>";
+        }
+        
+        } catch(PDOException $e) {
+            echo "<div class='error'>Database error: " . $e->getMessage() . "</div>";
+            echo "<div class='nav-links'>";
+            echo "<a href='list_data.php' class='back-btn'>← Back to All Registrations</a>";
             echo "</div>";
         }
         ?>

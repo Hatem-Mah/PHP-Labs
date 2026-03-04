@@ -8,6 +8,8 @@
 <body>
 
     <?php
+    // Include database connection
+    require_once 'config/database.php';
 
     // Get data from POST
     $fname = $_POST['fname'];
@@ -21,37 +23,27 @@
     $department = $_POST['department'];
     $code = $_POST['code'];
 
-    // Store data in a file
-    $data = [
-        'id' => uniqid(),
-        'timestamp' => date('Y-m-d H:i:s'),
-        'fname' => $fname,
-        'lname' => $lname,
-        'address' => $address,
-        'country' => $country,
-        'gender' => $gender,
-        'skills' => $skills,
-        'username' => $username,
-        'password' => $password,
-        'department' => $department,
-        'code' => $code
-    ];
+    try {
+        // Prepare SQL statement
+        $stmt = $pdo->prepare("INSERT INTO registrations (fname, lname, address, country, gender, skills, username, password, department, code) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
-    $file = 'data.json';
-    $currentData = [];
-    
-    // Read existing data if file exists
-    if (file_exists($file)) {
-        $jsonData = file_get_contents($file);
-        $currentData = json_decode($jsonData, true) ?: [];
+        // Convert skills array to JSON
+        $skillsJson = json_encode($skills);
+
+        // Execute the statement
+        $result = $stmt->execute([$fname, $lname, $address, $country, $gender, $skillsJson, $username, $password, $department, $code]);
+
+        if ($result) {
+            $success = true;
+            $insertId = $pdo->lastInsertId();
+        } else {
+            $success = false;
+            $error = "Failed to save data";
+        }
+    } catch (PDOException $e) {
+        $success = false;
+        $error = "Database error: " . $e->getMessage();
     }
-    
-    // Add new data
-    $currentData[] = $data;
-    
-    // Save back to file
-    file_put_contents($file, json_encode($currentData, JSON_PRETTY_PRINT));
-
     // Title based on gender
     if ($gender == "Female") {
         $title = "Ms";
@@ -93,10 +85,19 @@
         <?php echo $department; ?>
     </p>
 
-    <p>
-        <strong>Data saved successfully!</strong><br>
-        <a href="list_data.php">View All Registrations</a>
-    </p>
+    <?php if (isset($success) && $success): ?>
+        <p>
+            <strong>Data saved successfully to database!</strong><br>
+            <strong>Registration ID:</strong> <?php echo $insertId; ?><br>
+            <a href="list_data.php">View All Registrations</a>
+        </p>
+    <?php else: ?>
+        <p>
+            <strong>Error occurred:</strong><br>
+            <?php echo isset($error) ? $error : "Unknown error"; ?><br>
+            <a href="registration.html">Try Again</a>
+        </p>
+    <?php endif; ?>
 
 </body>
 
