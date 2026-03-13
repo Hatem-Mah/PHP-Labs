@@ -99,14 +99,14 @@
         <h2>Delete Registration</h2>
 
         <?php
-        require_once 'config/database.php';
-        require_once 'config/auth.php';
-        requireLogin();
-        renderUserBar();
+        require_once 'autoload.php';
+        $auth = Auth::getInstance();
+        $auth->requireLogin();
+        $auth->renderUserBar();
 
-        $id = $_GET['id'] ?? '';
+        $id      = $_GET['id'] ?? '';
         $confirm = $_POST['confirm'] ?? '';
-        
+
         if (empty($id) || !is_numeric($id)) {
             echo "<div class='error'>Invalid ID provided.</div>";
             echo "<div class='nav-links'>";
@@ -114,12 +114,11 @@
             echo "</div>";
             exit;
         }
-        
+
         try {
-            $stmt = $pdo->prepare("SELECT * FROM registrations WHERE id = ?");
-            $stmt->execute([$id]);
-            $record = $stmt->fetch();
-            
+            $repo   = new Registration();
+            $record = $repo->getById((int)$id);
+
             if (!$record) {
                 echo "<div class='error'>Record not found.</div>";
                 echo "<div class='nav-links'>";
@@ -127,11 +126,9 @@
                 echo "</div>";
                 exit;
             }
-            
+
             if ($confirm === 'yes') {
-                $deleteStmt = $pdo->prepare("DELETE FROM registrations WHERE id = ?");
-                
-                if ($deleteStmt->execute([$id])) {
+                if ($repo->delete((int)$id)) {
                     echo "<div class='success'>";
                     echo "<h3>✓ Record Deleted Successfully</h3>";
                     echo "<p>The registration for <strong>" . htmlspecialchars($record['fname'] . ' ' . $record['lname']) . "</strong> has been permanently deleted from the database.</p>";

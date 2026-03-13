@@ -106,10 +106,10 @@
         </div>
 
         <?php
-        require_once 'config/database.php';
-        require_once 'config/auth.php';
-        requireLogin();
-        renderUserBar();
+        require_once 'autoload.php';
+        $auth = Auth::getInstance();
+        $auth->requireLogin();
+        $auth->renderUserBar();
 
         $id = $_GET['id'] ?? '';
 
@@ -119,10 +119,8 @@
         }
 
         try {
-            
-            $stmt = $pdo->prepare("SELECT * FROM registrations WHERE id = ?");
-            $stmt->execute([$id]);
-            $record = $stmt->fetch();
+            $repo   = new Registration();
+            $record = $repo->getById((int)$id);
 
             if (!$record) {
                 echo "<div class='error'>Record not found.</div>";
