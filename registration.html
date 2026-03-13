@@ -1,133 +1,326 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registration Form</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f2f4f8;
+            color: #1f2937;
+        }
 
+        .wrapper {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 16px;
+        }
+
+        .card {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            padding: 24px;
+        }
+
+        h1 {
+            margin: 0 0 6px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            margin: 0 0 24px;
+            color: #6b7280;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .full {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            font-weight: 600;
+        }
+
+        input,
+        select,
+        textarea {
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 14px;
+        }
+
+        textarea {
+            min-height: 90px;
+            resize: vertical;
+        }
+
+        .options {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .error {
+            min-height: 18px;
+            color: #dc2626;
+            font-size: 13px;
+        }
+
+        .hint {
+            color: #6b7280;
+            font-size: 12px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        button {
+            border: none;
+            border-radius: 8px;
+            padding: 10px 18px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .primary {
+            background: #2563eb;
+            color: white;
+        }
+
+        .secondary {
+            background: #e5e7eb;
+            color: #111827;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
     <script>
+        function setError(field, message) {
+            document.getElementById(field + "Error").textContent = message;
+        }
+
+        function clearErrors() {
+            const errorEls = document.querySelectorAll('.error');
+            errorEls.forEach((el) => {
+                el.textContent = '';
+            });
+        }
+
         function validateForm(event) {
+            clearErrors();
 
-            let fname = document.forms["regForm"]["fname"].value.trim();
-            let lname = document.forms["regForm"]["lname"].value.trim();
-            let address = document.forms["regForm"]["address"].value.trim();
-            let country = document.forms["regForm"]["country"].value;
-            let gender = document.querySelector('input[name="gender"]:checked');
-            let skills = document.querySelectorAll('input[name="skills[]"]:checked');
-            let username = document.forms["regForm"]["username"].value.trim();
-            let password = document.forms["regForm"]["password"].value.trim();
-            let code = document.forms["regForm"]["code"].value.trim();
+            const form = document.forms["regForm"];
+            const fname = form["fname"].value.trim();
+            const lname = form["lname"].value.trim();
+            const address = form["address"].value.trim();
+            const country = form["country"].value;
+            const gender = document.querySelector('input[name="gender"]:checked');
+            const skills = document.querySelectorAll('input[name="skills[]"]:checked');
+            const username = form["username"].value.trim();
+            const password = form["password"].value.trim();
+            const code = form["code"].value.trim();
+            const profileImage = form["profile_image"].files[0];
 
-            let namePattern = /^[A-Za-z]+$/;
+            const namePattern = /^[A-Za-z]+$/;
+            const passwordPattern = /^[a-z0-9_]{8}$/;
 
-            if (fname === "" || !namePattern.test(fname)) {
-                alert("Invalid First Name");
-                event.preventDefault();
-                return;
+            let isValid = true;
+
+            if (!fname) {
+                setError('fname', 'First name is required.');
+                isValid = false;
+            } else if (!namePattern.test(fname)) {
+                setError('fname', 'First name must contain letters only.');
+                isValid = false;
             }
 
-            if (lname === "" || !namePattern.test(lname)) {
-                alert("Invalid Last Name");
-                event.preventDefault();
-                return;
+            if (!lname) {
+                setError('lname', 'Last name is required.');
+                isValid = false;
+            } else if (!namePattern.test(lname)) {
+                setError('lname', 'Last name must contain letters only.');
+                isValid = false;
             }
 
-            if (address === "") {
-                alert("Address required");
-                event.preventDefault();
-                return;
+            if (!address) {
+                setError('address', 'Address is required.');
+                isValid = false;
             }
 
             if (country === "Select Country") {
-                alert("Select country");
-                event.preventDefault();
-                return;
+                setError('country', 'Country is required.');
+                isValid = false;
             }
 
             if (!gender) {
-                alert("Select gender");
-                event.preventDefault();
-                return;
+                setError('gender', 'Gender is required.');
+                isValid = false;
             }
 
             if (skills.length === 0) {
-                alert("Select at least one skill");
-                event.preventDefault();
-                return;
+                setError('skills', 'Please select at least one skill.');
+                isValid = false;
             }
 
-            if (username.length < 4) {
-                alert("Username too short");
-                event.preventDefault();
-                return;
+            if (!username) {
+                setError('username', 'Username is required.');
+                isValid = false;
             }
 
-            if (password.length < 6) {
-                alert("Password too short");
-                event.preventDefault();
-                return;
+            if (!password) {
+                setError('password', 'Password is required.');
+                isValid = false;
+            } else if (!passwordPattern.test(password)) {
+                setError('password', 'Password must be exactly 8 chars, lowercase letters/numbers, underscore only.');
+                isValid = false;
             }
 
             if (code !== "Sh68Sa") {
-                alert("Invalid code");
+                setError('code', 'Code must match Sh68Sa.');
+                isValid = false;
+            }
+
+            if (!profileImage) {
+                setError('profile_image', 'Profile image is required.');
+                isValid = false;
+            } else {
+                const validTypes = ['image/jpeg', 'image/png'];
+                const maxSize = 2 * 1024 * 1024;
+
+                if (!validTypes.includes(profileImage.type)) {
+                    setError('profile_image', 'Only JPG and PNG are allowed.');
+                    isValid = false;
+                } else if (profileImage.size > maxSize) {
+                    setError('profile_image', 'Image size must be 2MB or less.');
+                    isValid = false;
+                }
+            }
+
+            if (!isValid) {
                 event.preventDefault();
-                return;
             }
         }
     </script>
 </head>
 
 <body>
+    <div class="wrapper">
+        <div class="card">
+            <h1>Registration</h1>
+            <p class="subtitle">Fill all required fields to create your account.</p>
 
-    <h2>Registration</h2>
+            <form name="regForm" action="done.php" method="post" enctype="multipart/form-data" onsubmit="validateForm(event)">
+                <div class="grid">
+                    <div class="field">
+                        <label for="fname">First Name</label>
+                        <input id="fname" type="text" name="fname">
+                        <span class="error" id="fnameError"></span>
+                    </div>
 
-    <form name="regForm" action="done.php" method="post" onsubmit="validateForm(event)">
+                    <div class="field">
+                        <label for="lname">Last Name</label>
+                        <input id="lname" type="text" name="lname">
+                        <span class="error" id="lnameError"></span>
+                    </div>
 
-        First Name:<br>
-        <input type="text" name="fname"><br><br>
+                    <div class="field full">
+                        <label for="address">Address</label>
+                        <textarea id="address" name="address"></textarea>
+                        <span class="error" id="addressError"></span>
+                    </div>
 
-        Last Name:<br>
-        <input type="text" name="lname"><br><br>
+                    <div class="field">
+                        <label for="country">Country</label>
+                        <select id="country" name="country">
+                            <option>Select Country</option>
+                            <option>Egypt</option>
+                            <option>USA</option>
+                            <option>UK</option>
+                        </select>
+                        <span class="error" id="countryError"></span>
+                    </div>
 
-        Address:<br>
-        <textarea name="address" rows="4" cols="40"></textarea><br><br>
+                    <div class="field">
+                        <label>Gender</label>
+                        <div class="options">
+                            <label><input type="radio" name="gender" value="Male"> Male</label>
+                            <label><input type="radio" name="gender" value="Female"> Female</label>
+                        </div>
+                        <span class="error" id="genderError"></span>
+                    </div>
 
-        Country:<br>
-        <select name="country">
-            <option>Select Country</option>
-            <option>Egypt</option>
-            <option>USA</option>
-            <option>UK</option>
-        </select><br><br>
+                    <div class="field full">
+                        <label>Skills</label>
+                        <div class="options">
+                            <label><input type="checkbox" name="skills[]" value="PHP"> PHP</label>
+                            <label><input type="checkbox" name="skills[]" value="MySQL"> MySQL</label>
+                            <label><input type="checkbox" name="skills[]" value="J2SE"> J2SE</label>
+                            <label><input type="checkbox" name="skills[]" value="PostgreSQL"> PostgreSQL</label>
+                        </div>
+                        <span class="error" id="skillsError"></span>
+                    </div>
 
-        Gender:<br>
-        <input type="radio" name="gender" value="Male"> Male
-        <input type="radio" name="gender" value="Female"> Female
-        <br><br>
+                    <div class="field">
+                        <label for="username">Username</label>
+                        <input id="username" type="text" name="username">
+                        <span class="error" id="usernameError"></span>
+                    </div>
 
-        Skills:<br>
-        <input type="checkbox" name="skills[]" value="PHP"> PHP
-        <input type="checkbox" name="skills[]" value="MySQL"> MySQL
-        <input type="checkbox" name="skills[]" value="J2SE"> J2SE
-        <input type="checkbox" name="skills[]" value="PostgreSQL"> PostgreSQL
-        <br><br>
+                    <div class="field">
+                        <label for="password">Password</label>
+                        <input id="password" type="password" name="password">
+                        <span class="hint">Exactly 8 chars: lowercase letters, numbers, underscore.</span>
+                        <span class="error" id="passwordError"></span>
+                    </div>
 
-        Username:<br>
-        <input type="text" name="username"><br><br>
+                    <div class="field full">
+                        <label for="profile_image">Profile Picture (JPG/PNG, max 2MB)</label>
+                        <input id="profile_image" type="file" name="profile_image" accept="image/jpeg,image/png">
+                        <span class="error" id="profile_imageError"></span>
+                    </div>
 
-        Password:<br>
-        <input type="password" name="password"><br><br>
+                    <div class="field">
+                        <label for="department">Department</label>
+                        <input id="department" type="text" name="department" value="OpenSource" readonly>
+                    </div>
 
-        Department:<br>
-        <input type="text" name="department" value="OpenSource" readonly><br><br>
+                    <div class="field">
+                        <label for="code">Code (Sh68Sa)</label>
+                        <input id="code" type="text" name="code">
+                        <span class="error" id="codeError"></span>
+                    </div>
+                </div>
 
-        Code: Sh68Sa<br>
-        <input type="text" name="code"><br><br>
-
-        <input type="submit" value="Submit">
-        <input type="reset" value="Reset">
-
-    </form>
-
+                <div class="actions">
+                    <button type="submit" class="primary">Submit</button>
+                    <button type="reset" class="secondary">Reset</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </body>
 
 </html>
