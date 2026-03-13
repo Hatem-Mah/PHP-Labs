@@ -23,9 +23,9 @@
 
     try {
         $stmt = $pdo->prepare("INSERT INTO registrations (fname, lname, address, country, gender, skills, username, password, department, code) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        
+
         $skillsJson = json_encode($skills);
-        
+
 
         if ($result) {
             $success = true;
