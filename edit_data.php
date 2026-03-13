@@ -169,6 +169,9 @@
 
         <?php
         require_once 'config/database.php';
+        require_once 'config/auth.php';
+        requireLogin();
+        renderUserBar();
 
         $id = $_GET['id'] ?? $_POST['id'] ?? '';
         $isUpdate = $_POST['update'] ?? false;

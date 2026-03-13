@@ -63,6 +63,9 @@
         <div class="card">
             <?php
             require_once 'config/database.php';
+            require_once 'config/auth.php';
+
+            renderUserBar();
 
             $fname = trim($_POST['fname'] ?? '');
             $lname = trim($_POST['lname'] ?? '');

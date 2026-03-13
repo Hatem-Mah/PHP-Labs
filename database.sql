@@ -24,8 +24,8 @@ CREATE TABLE registrations (
 
 -- Sample data (optional)
 INSERT INTO registrations (fname, lname, address, country, gender, skills, username, password, profile_image, department, code) VALUES
-('John', 'Doe', '123 Main St, City', 'USA', 'Male', '["PHP", "MySQL"]', 'johndoe', '$2y$10$X6f0L3ERxB2vJc2FdM6vGOwQ5v2FASmWjQ3a5mYFzj7w9Qa5uVh6K', 'uploads/default-user.png', 'OpenSource', 'Sh68Sa'),
-('Jane', 'Smith', '456 Oak Ave, Town', 'UK', 'Female', '["PHP", "J2SE", "PostgreSQL"]', 'janesmith', '$2y$10$X6f0L3ERxB2vJc2FdM6vGOwQ5v2FASmWjQ3a5mYFzj7w9Qa5uVh6K', 'uploads/default-user.png', 'OpenSource', 'Sh68Sa');
+('John', 'Doe', '123 Main St, City', 'USA', 'Male', '["PHP", "MySQL"]', 'johndoe', '$2y$10$5HuPSyof0WzPfpxuxGkj4ePJl1a7g0BgXQ3DBeQ4MKVsEWy0PxIoW', 'uploads/default-user.png', 'OpenSource', 'Sh68Sa'),
+('Jane', 'Smith', '456 Oak Ave, Town', 'UK', 'Female', '["PHP", "J2SE", "PostgreSQL"]', 'janesmith', '$2y$10$5HuPSyof0WzPfpxuxGkj4ePJl1a7g0BgXQ3DBeQ4MKVsEWy0PxIoW', 'uploads/default-user.png', 'OpenSource', 'Sh68Sa');
 
 ALTER TABLE registrations
 ADD COLUMN IF NOT EXISTS profile_image VARCHAR(255) NOT NULL DEFAULT 'uploads/default-user.png' AFTER password;
