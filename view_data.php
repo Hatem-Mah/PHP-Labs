@@ -4,10 +4,17 @@
 <head>
     <title>View Registration Details</title>
     <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f2f4f8;
+            color: #1f2937;
+        }
+
         .container {
             max-width: 800px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 32px 20px;
         }
 
         .detail-card {
@@ -77,6 +84,15 @@
             border-radius: 15px;
             font-size: 12px;
         }
+
+        .avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #e5e7eb;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 
@@ -113,6 +129,7 @@
 
             echo "<div class='detail-card'>";
             echo "<h3>Registration Information</h3>";
+            echo "<img class='avatar' src='" . htmlspecialchars($record['profile_image']) . "' alt='Profile image'>";
 
             echo "<div class='detail-row'>";
             echo "<div class='detail-label'>ID:</div>";
@@ -153,7 +170,7 @@
             echo "<div class='detail-label'>Skills:</div>";
             echo "<div class='detail-value'>";
             echo "<div class='skills-list'>";
-            $skills = json_decode($record['skills'], true);
+            $skills = json_decode($record['skills'], true) ?: [];
             foreach ($skills as $skill) {
                 echo "<span class='skill-tag'>" . htmlspecialchars($skill) . "</span>";
             }

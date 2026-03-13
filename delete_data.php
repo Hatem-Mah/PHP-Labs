@@ -179,7 +179,7 @@
             
             echo "<div class='detail-row'>";
             echo "<div class='detail-label'>Registered:</div>";
-            echo "<div class='detail-value'>" . htmlspecialchars($record['timestamp']) . "</div>";
+                echo "<div class='detail-value'>" . htmlspecialchars($record['created_at']) . "</div>";
             echo "</div>";
             
             echo "</div>";

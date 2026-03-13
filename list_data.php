@@ -4,10 +4,31 @@
 <head>
     <title>All Registrations</title>
     <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f2f4f8;
+            color: #1f2937;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 32px auto;
+            padding: 0 16px;
+        }
+
+        .panel {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            padding: 20px;
+        }
+
         table {
             border-collapse: collapse;
             width: 100%;
             margin: 20px 0;
+            background: #fff;
         }
 
         table,
@@ -71,15 +92,25 @@
             text-decoration: none;
             border-radius: 5px;
         }
+
+        .avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid #d1d5db;
+        }
     </style>
 </head>
 
 <body>
-    <h2>All Registrations</h2>
+    <div class="container">
+        <div class="panel">
+            <h2>All Registrations</h2>
 
-    <div class="nav-links">
-        <a href="registration.html">New Registration</a>
-    </div>
+            <div class="nav-links">
+                <a href="registration.html">New Registration</a>
+            </div>
 
     <?php
     require_once 'config/database.php';
@@ -95,6 +126,7 @@
             echo "<table>";
             echo "<tr>";
             echo "<th>ID</th>";
+            echo "<th>Photo</th>";
             echo "<th>Name</th>";
             echo "<th>Email/Username</th>";
             echo "<th>Address</th>";
@@ -109,6 +141,7 @@
             foreach ($data as $record) {
                 echo "<tr>";
                 echo "<td>" . htmlspecialchars($record['id']) . "</td>";
+                echo "<td><img class='avatar' src='" . htmlspecialchars($record['profile_image']) . "' alt='Profile'></td>";
                 echo "<td>" . htmlspecialchars($record['fname'] . ' ' . $record['lname']) . "</td>";
                 echo "<td>" . htmlspecialchars($record['username']) . "</td>";
                 echo "<td>" . htmlspecialchars($record['address']) . "</td>";
@@ -134,6 +167,8 @@
         echo "<p>Make sure XAMPP MySQL is running and database is created.</p>";
     }
     ?>
+        </div>
+    </div>
 </body>
 
 </html>
