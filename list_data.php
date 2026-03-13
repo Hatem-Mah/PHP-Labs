@@ -114,6 +114,9 @@
 
     <?php
     require_once 'config/database.php';
+    require_once 'config/auth.php';
+    requireLogin();
+    renderUserBar();
 
     try {
         $stmt = $pdo->query("SELECT * FROM registrations ORDER BY created_at DESC");
