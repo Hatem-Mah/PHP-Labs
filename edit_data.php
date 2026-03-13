@@ -168,10 +168,10 @@
         <h2>Edit Registration</h2>
 
         <?php
-        require_once 'config/database.php';
-        require_once 'config/auth.php';
-        requireLogin();
-        renderUserBar();
+        require_once 'autoload.php';
+        $auth = Auth::getInstance();
+        $auth->requireLogin();
+        $auth->renderUserBar();
 
         $id = $_GET['id'] ?? $_POST['id'] ?? '';
         $isUpdate = $_POST['update'] ?? false;
@@ -185,9 +185,8 @@
         }
 
         try {
-            $stmt = $pdo->prepare("SELECT * FROM registrations WHERE id = ?");
-            $stmt->execute([$id]);
-            $record = $stmt->fetch();
+            $repo = new Registration();
+            $record = $repo->getById((int)$id);
 
             if (!$record) {
                 echo "<div class='error'>Record not found.</div>";
@@ -198,19 +197,15 @@
             }
 
             if ($isUpdate) {
-                $updateStmt = $pdo->prepare("UPDATE registrations SET fname = ?, lname = ?, address = ?, country = ?, gender = ?, skills = ?, username = ?, department = ? WHERE id = ?");
-                $skillsJson = json_encode($_POST['skills'] ?? []);
-
-                if ($updateStmt->execute([
-                    $_POST['fname'],
-                    $_POST['lname'],
-                    $_POST['address'],
-                    $_POST['country'],
-                    $_POST['gender'],
-                    $skillsJson,
-                    $_POST['username'],
-                    $_POST['department'],
-                    $id
+                if ($repo->update((int)$id, [
+                    'fname' => $_POST['fname'],
+                    'lname' => $_POST['lname'],
+                    'address' => $_POST['address'],
+                    'country' => $_POST['country'],
+                    'gender' => $_POST['gender'],
+                    'skills' => $_POST['skills'] ?? [],
+                    'username' => $_POST['username'],
+                    'department' => $_POST['department']
                 ])) {
                     echo "<div class='success'>";
                     echo "<h3>✓ Record Updated Successfully</h3>";
@@ -222,8 +217,7 @@
                     echo "<a href='list_data.php' class='back-btn'>← Back to All Registrations</a>";
                     echo "</div>";
 
-                    $stmt->execute([$id]);
-                    $record = $stmt->fetch();
+                    $record = $repo->getById((int)$id);
                 } else {
                     echo "<div class='error'>";
                     echo "<h3>✗ Error</h3>";

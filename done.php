@@ -62,117 +62,57 @@
     <div class="wrapper">
         <div class="card">
             <?php
-            require_once 'config/database.php';
-            require_once 'config/auth.php';
+            require_once 'autoload.php';
+            $auth = Auth::getInstance();
+            $auth->renderUserBar();
 
-            renderUserBar();
-
-            $fname = trim($_POST['fname'] ?? '');
-            $lname = trim($_POST['lname'] ?? '');
-            $address = trim($_POST['address'] ?? '');
-            $country = trim($_POST['country'] ?? '');
-            $gender = trim($_POST['gender'] ?? '');
-            $skills = $_POST['skills'] ?? [];
-            $username = trim($_POST['username'] ?? '');
-            $password = trim($_POST['password'] ?? '');
+            $fname      = trim($_POST['fname']      ?? '');
+            $lname      = trim($_POST['lname']      ?? '');
+            $address    = trim($_POST['address']    ?? '');
+            $country    = trim($_POST['country']    ?? '');
+            $gender     = trim($_POST['gender']     ?? '');
+            $skills     = $_POST['skills']          ?? [];
+            $username   = trim($_POST['username']   ?? '');
+            $password   = trim($_POST['password']   ?? '');
             $department = trim($_POST['department'] ?? '');
-            $code = trim($_POST['code'] ?? '');
+            $code       = trim($_POST['code']       ?? '');
 
-            $errors = [];
+            $validator = new Validator();
+            $validator->requireName($fname, 'First name');
+            $validator->requireName($lname, 'Last name');
+            $validator->requireNotEmpty($address, 'Address');
+            $validator->requireCountry($country);
+            $validator->requireGender($gender);
+            $validator->requireSkills(is_array($skills) ? $skills : []);
+            $validator->requireNotEmpty($username, 'Username');
+            $validator->requirePassword($password);
+            $validator->requireCode($code, 'Sh68Sa');
 
-            if ($fname === '' || !preg_match('/^[A-Za-z]+$/', $fname)) {
-                $errors[] = 'First name is required and must contain letters only.';
+            $upload = new FileUpload();
+            $profileImagePath = $upload->handle($_FILES['profile_image'] ?? []);
+            if ($profileImagePath === null) {
+                $validator->addError($upload->getError());
             }
 
-            if ($lname === '' || !preg_match('/^[A-Za-z]+$/', $lname)) {
-                $errors[] = 'Last name is required and must contain letters only.';
-            }
-
-            if ($address === '') {
-                $errors[] = 'Address is required.';
-            }
-
-            if ($country === '' || $country === 'Select Country') {
-                $errors[] = 'Country is required.';
-            }
-
-            if ($gender !== 'Male' && $gender !== 'Female') {
-                $errors[] = 'Gender is required.';
-            }
-
-            if (!is_array($skills) || count($skills) === 0) {
-                $errors[] = 'At least one skill must be selected.';
-            }
-
-            if ($username === '') {
-                $errors[] = 'Username is required.';
-            }
-
-            if (!preg_match('/^[a-z0-9_]{8}$/', $password)) {
-                $errors[] = 'Password must be exactly 8 chars, lowercase letters/numbers, underscore only.';
-            }
-
-            if ($code !== 'Sh68Sa') {
-                $errors[] = 'Invalid code.';
-            }
-
-            $profileImagePath = '';
-            if (!isset($_FILES['profile_image']) || $_FILES['profile_image']['error'] !== UPLOAD_ERR_OK) {
-                $errors[] = 'Profile image is required.';
-            } else {
-                $file = $_FILES['profile_image'];
-                $maxSize = 2 * 1024 * 1024;
-                $allowedExtensions = ['jpg', 'jpeg', 'png'];
-                $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-
-                if (!in_array($extension, $allowedExtensions, true)) {
-                    $errors[] = 'Profile image must be JPG or PNG.';
-                }
-
-                if ((int)$file['size'] > $maxSize) {
-                    $errors[] = 'Profile image size must be 2MB or less.';
-                }
-
-                if (empty($errors)) {
-                    if (!is_dir('uploads')) {
-                        mkdir('uploads', 0777, true);
-                    }
-
-                    $safeName = uniqid('profile_', true) . '.' . $extension;
-                    $targetPath = 'uploads/' . $safeName;
-
-                    if (!move_uploaded_file($file['tmp_name'], $targetPath)) {
-                        $errors[] = 'Failed to upload profile image.';
-                    } else {
-                        $profileImagePath = $targetPath;
-                    }
-                }
-            }
-
-            if ($gender === 'Female') {
-                $title = 'Ms';
-            } else {
-                $title = 'Mrs';
-            }
-
-            if (!empty($errors)) {
+            if ($validator->hasErrors()) {
                 echo '<h2>Registration Failed</h2>';
                 echo '<div class="bad"><ul>';
-                foreach ($errors as $validationError) {
-                    echo '<li>' . htmlspecialchars($validationError) . '</li>';
+                foreach ($validator->getErrors() as $err) {
+                    echo '<li>' . htmlspecialchars($err) . '</li>';
                 }
                 echo '</ul></div>';
                 echo '<div class="actions"><a href="registration.html">Back to Registration</a></div>';
             } else {
                 try {
-                    $stmt = $pdo->prepare('INSERT INTO registrations (fname, lname, address, country, gender, skills, username, password, profile_image, department, code) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+                    $title = ($gender === 'Female') ? 'Ms' : 'Mr';
+                    $repo  = new Registration();
+                    $saved = $repo->create(
+                        compact('fname', 'lname', 'address', 'country', 'gender', 'skills', 'username', 'password', 'department', 'code'),
+                        $profileImagePath
+                    );
 
-                    $skillsJson = json_encode($skills);
-                    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-                    $result = $stmt->execute([$fname, $lname, $address, $country, $gender, $skillsJson, $username, $hashedPassword, $profileImagePath, $department, $code]);
-
-                    if ($result) {
-                        $insertId = $pdo->lastInsertId();
+                    if ($saved) {
+                        $insertId = Database::getInstance()->getConnection()->lastInsertId();
                         echo '<h2>Review</h2>';
                         echo '<p>Thanks ' . htmlspecialchars($title . ' ' . $fname . ' ' . $lname) . '</p>';
                         echo '<img class="avatar" src="' . htmlspecialchars($profileImagePath) . '" alt="Profile image">';

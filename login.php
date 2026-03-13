@@ -1,8 +1,8 @@
 <?php
-require_once 'config/database.php';
-require_once 'config/auth.php';
+require_once 'autoload.php';
+$auth = Auth::getInstance();
 
-if (isLoggedIn()) {
+if ($auth->isLoggedIn()) {
     header('Location: home.php');
     exit;
 }
@@ -17,15 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($username === '' || $password === '') {
         $error = 'Username and password are required.';
     } else {
-        $stmt = $pdo->prepare('SELECT id, fname, lname, username, password FROM registrations WHERE username = ? LIMIT 1');
-        $stmt->execute([$username]);
-        $user = $stmt->fetch();
-
-        if ($user && password_verify($password, $user['password'])) {
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['username'] = $user['username'];
-            $_SESSION['display_name'] = $user['fname'] . ' ' . $user['lname'];
-
+        if ($auth->login($username, $password)) {
             header('Location: home.php');
             exit;
         }
@@ -54,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 
 <body>
-    <?php renderUserBar(); ?>
+    <?php $auth->renderUserBar(); ?>
     <div class="box">
         <h1>Login</h1>
         <?php if ($error !== ''): ?>

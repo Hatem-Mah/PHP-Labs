@@ -1,6 +1,7 @@
 <?php
-require_once 'config/auth.php';
-requireLogin();
+require_once 'autoload.php';
+$auth = Auth::getInstance();
+$auth->requireLogin();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -18,10 +19,10 @@ requireLogin();
 </head>
 
 <body>
-    <?php renderUserBar(); ?>
+    <?php $auth->renderUserBar(); ?>
     <div class="container">
         <div class="card">
-            <h1>Welcome, <?php echo currentUserName(); ?></h1>
+            <h1>Welcome, <?php echo $auth->currentUserName(); ?></h1>
             <p>You are logged in successfully.</p>
             <div class="links">
                 <a href="list_data.php">View Registrations</a>

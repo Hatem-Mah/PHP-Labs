@@ -113,14 +113,14 @@
             </div>
 
     <?php
-    require_once 'config/database.php';
-    require_once 'config/auth.php';
-    requireLogin();
-    renderUserBar();
+    require_once 'autoload.php';
+    $auth = Auth::getInstance();
+    $auth->requireLogin();
+    $auth->renderUserBar();
 
     try {
-        $stmt = $pdo->query("SELECT * FROM registrations ORDER BY created_at DESC");
-        $data = $stmt->fetchAll();
+        $repo = new Registration();
+        $data = $repo->getAll();
 
         if (empty($data)) {
             echo "<p>No registrations yet. <a href='registration.html'>Add a new registration</a></p>";
